@@ -120,7 +120,7 @@ On error:
 
 #### User Management
 
-**Create User** (No auth required)
+**Create User** (No auth required - creates regular users only)
 ```bash
 POST /api/users
 Content-Type: application/json
@@ -131,6 +131,21 @@ Content-Type: application/json
   "is_admin": false
 }
 ```
+Note: The `is_admin` field is ignored for security. All users created via this endpoint are regular users.
+
+**Create Admin User** (Admin only)
+```bash
+POST /api/users/admin
+Authorization: Basic <admin-credentials>
+Content-Type: application/json
+
+{
+  "username": "new_admin",
+  "password": "secure_password",
+  "is_admin": true
+}
+```
+Note: Only existing admins can create new admin users.
 
 **List All Users**
 ```bash
@@ -370,11 +385,36 @@ cargo clippy
 
 ## Security Considerations
 
-1. **Authentication**: Uses HTTP Basic Auth. In production, consider using HTTPS/TLS
-2. **Password Hashing**: Uses bcrypt with default cost factor
+1. **Authentication**: Uses HTTP Basic Auth. **In production, use HTTPS/TLS to encrypt credentials in transit**
+2. **Password Hashing**: Uses bcrypt with default cost factor (secure)
 3. **Authorization**: Implements role-based access control (admin vs. regular user)
-4. **SQL Injection**: Protected via SQLx parameterized queries
-5. **Session Management**: In-memory cache with TTL expiration
+4. **Admin Account Creation**: 
+   - Regular users cannot create admin accounts (security fix applied)
+   - Only existing admins can create other admin users via `/api/users/admin` endpoint
+   - First admin must be created directly in the database
+5. **SQL Injection**: Protected via SQLx parameterized queries
+6. **Session Management**: In-memory cache with TTL expiration
+7. **Input Validation**: Serde validates JSON structure and types
+
+### Initial Admin Setup
+
+To create the first admin user, you can use SQLite directly:
+
+```bash
+sqlite3 todos.db
+
+INSERT INTO users (id, username, password_hash, is_admin, points, created_at)
+VALUES (
+  'first-admin-uuid',
+  'admin',
+  '$2b$12$...',  -- bcrypt hash of password
+  1,
+  0,
+  '2024-01-01T00:00:00Z'
+);
+```
+
+Or use a migration script to bootstrap the first admin.
 
 ## Error Handling
 
