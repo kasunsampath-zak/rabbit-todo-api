@@ -48,13 +48,15 @@ impl UserRepository for SqliteUserRepository {
         .fetch_optional(&self.pool)
         .await?;
 
-        Ok(result.map(|(id, username, password_hash, is_admin, points, created_at)| User {
-            id: Uuid::parse_str(&id).unwrap(),
-            username,
-            password_hash,
-            is_admin: is_admin != 0,
-            points,
-            created_at: created_at.parse().unwrap(),
+        Ok(result.map(|(id, username, password_hash, is_admin, points, created_at)| {
+            User {
+                id: Uuid::parse_str(&id).unwrap_or_else(|_| Uuid::nil()),
+                username,
+                password_hash,
+                is_admin: is_admin != 0,
+                points,
+                created_at: created_at.parse().unwrap_or_else(|_| chrono::Utc::now()),
+            }
         }))
     }
 
@@ -69,13 +71,15 @@ impl UserRepository for SqliteUserRepository {
         .fetch_optional(&self.pool)
         .await?;
 
-        Ok(result.map(|(id, username, password_hash, is_admin, points, created_at)| User {
-            id: Uuid::parse_str(&id).unwrap(),
-            username,
-            password_hash,
-            is_admin: is_admin != 0,
-            points,
-            created_at: created_at.parse().unwrap(),
+        Ok(result.map(|(id, username, password_hash, is_admin, points, created_at)| {
+            User {
+                id: Uuid::parse_str(&id).unwrap_or_else(|_| Uuid::nil()),
+                username,
+                password_hash,
+                is_admin: is_admin != 0,
+                points,
+                created_at: created_at.parse().unwrap_or_else(|_| chrono::Utc::now()),
+            }
         }))
     }
 
@@ -134,13 +138,15 @@ impl UserRepository for SqliteUserRepository {
 
         Ok(results
             .into_iter()
-            .map(|(id, username, password_hash, is_admin, points, created_at)| User {
-                id: Uuid::parse_str(&id).unwrap(),
-                username,
-                password_hash,
-                is_admin: is_admin != 0,
-                points,
-                created_at: created_at.parse().unwrap(),
+            .map(|(id, username, password_hash, is_admin, points, created_at)| {
+                User {
+                    id: Uuid::parse_str(&id).unwrap_or_else(|_| Uuid::nil()),
+                    username,
+                    password_hash,
+                    is_admin: is_admin != 0,
+                    points,
+                    created_at: created_at.parse().unwrap_or_else(|_| chrono::Utc::now()),
+                }
             })
             .collect())
     }
@@ -178,8 +184,8 @@ impl UserRepository for SqliteUserRepository {
             "#,
         )
         .bind(user_id.to_string())
-        .fetch_one(&self.pool)
-        .await
+        .fetch_optional(&self.pool)
+        .await?
         .unwrap_or((0, 0, 0, 0));
 
         Ok(UserProfile {

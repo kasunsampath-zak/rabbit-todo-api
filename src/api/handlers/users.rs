@@ -14,6 +14,31 @@ pub async fn create_user(
     State(state): State<AppState>,
     Json(dto): Json<CreateUserDto>,
 ) -> Result<Json<serde_json::Value>, AppError> {
+    // Security: Prevent non-admins from creating admin accounts
+    // Only admins can set is_admin flag, others always create regular users
+    let is_admin = false;
+
+    let password_hash = bcrypt::hash(&dto.password, bcrypt::DEFAULT_COST)
+        .map_err(|e| AppError::InternalError(format!("Password hashing failed: {}", e)))?;
+
+    let user = User {
+        id: Uuid::new_v4(),
+        username: dto.username,
+        password_hash,
+        is_admin,
+        points: 0,
+        created_at: Utc::now(),
+    };
+
+    let created_user = state.user_repo.create(&user).await?;
+    success(created_user)
+}
+
+pub async fn create_admin_user(
+    AdminUser(_admin): AdminUser,
+    State(state): State<AppState>,
+    Json(dto): Json<CreateUserDto>,
+) -> Result<Json<serde_json::Value>, AppError> {
     let password_hash = bcrypt::hash(&dto.password, bcrypt::DEFAULT_COST)
         .map_err(|e| AppError::InternalError(format!("Password hashing failed: {}", e)))?;
 

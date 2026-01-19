@@ -23,6 +23,7 @@ pub fn create_router(state: AppState) -> Router {
     Router::new()
         // User routes
         .route("/api/users", post(handlers::users::create_user))
+        .route("/api/users/admin", post(handlers::users::create_admin_user))
         .route("/api/users", get(handlers::users::list_users))
         .route("/api/users/:id", get(handlers::users::get_user))
         .route("/api/users/:id", put(handlers::users::update_user))
