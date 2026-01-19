@@ -270,7 +270,7 @@ Content-Type: application/json
 {
   "title": "Implement authentication",
   "description": "Add JWT authentication to API",
-  "priority": "high",
+  "priority": "High",
   "notes": "Use RS256 algorithm",
   "estimated_duration": 8,
   "due_date": "2024-12-31T23:59:59Z",
@@ -290,13 +290,13 @@ Content-Type: application/json
 
 {
   "title": "Updated title",
-  "status": "in_progress",
-  "priority": "critical",
+  "status": "InProgress",
+  "priority": "Critical",
   "actual_duration": 10
 }
 ```
 
-Note: Changing status to "closed" awards +2 points to all assigned users. Reopening (changing from "closed" to another status) deducts -2 points.
+Note: Changing status to "Closed" awards +2 points to all assigned users. Reopening (changing from "Closed" to another status) deducts -2 points.
 
 **Delete Todo** (Creator or admin only)
 ```bash
@@ -329,15 +329,15 @@ GET /api/todos/{id}/assigned-users
 ```
 
 ### Status Values
-- `active` - Todo is created but not started
-- `in_progress` - Todo is being worked on
-- `closed` - Todo is completed
+- `Active` - Todo is created but not started
+- `InProgress` - Todo is being worked on
+- `Closed` - Todo is completed
 
 ### Priority Values
-- `low`
-- `medium`
-- `high`
-- `critical`
+- `Low`
+- `Medium`
+- `High`
+- `Critical`
 
 ## Points System
 
